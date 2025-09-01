@@ -10,6 +10,7 @@ import HomeScreen from './components/HomeScreen';
 import DrawerContent from './components/DrawerContent';
 import { ModalProvider, useModal } from './components/ModalContext';
 import DownloadModal from './components/DownloadModal';
+import AlertModal from './components/AlertModal';
 
 const Drawer = createDrawerNavigator();
 
@@ -24,7 +25,16 @@ function HomeScreenWrapper({ navigation }: { navigation: any }) {
 }
 
 function AppContent() {
-  const { isDownloadModalVisible, videoUrl, videoThumbnail, videoTitle, hideDownloadModal } = useModal();
+  const { 
+    isDownloadModalVisible, 
+    videoUrl, 
+    videoThumbnail, 
+    videoTitle, 
+    hideDownloadModal,
+    isAlertModalVisible,
+    alertModalData,
+    hideAlertModal
+  } = useModal();
 
   return (
     <>
@@ -59,6 +69,18 @@ function AppContent() {
         videoUrl={videoUrl}
         videoThumbnail={videoThumbnail}
         videoTitle={videoTitle}
+      />
+
+      {/* Alert Modal - Rendered at root level */}
+      <AlertModal
+        isVisible={isAlertModalVisible}
+        onClose={hideAlertModal}
+        title={alertModalData.title}
+        message={alertModalData.message}
+        confirmText={alertModalData.confirmText}
+        cancelText={alertModalData.cancelText}
+        onConfirm={alertModalData.onConfirm}
+        type={alertModalData.type}
       />
     </>
   );

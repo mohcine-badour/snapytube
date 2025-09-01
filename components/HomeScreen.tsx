@@ -6,7 +6,7 @@ import { useModal } from './ModalContext';
 
 const HomeScreen: React.FC = () => {
   const [videoUrl, setVideoUrl] = useState('');
-  const { showDownloadModal } = useModal();
+  const { showDownloadModal, showWarningAlert } = useModal();
 
   const handleDownloadPress = () => {
     // In a real app, you would validate the URL and fetch video info here
@@ -18,8 +18,11 @@ const HomeScreen: React.FC = () => {
       const thumbnail = 'https://via.placeholder.com/300x200/666666/FFFFFF?text=Video+Thumbnail';
       showDownloadModal(videoUrl, thumbnail, sampleTitle);
     } else {
-      // Show error or prompt to enter URL
-      alert('Please enter a video URL first');
+      // Show custom alert modal
+      showWarningAlert(
+        'URL Required',
+        'Please enter a video URL in the input field above to continue with the download.'
+      );
     }
   };
 
