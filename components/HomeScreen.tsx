@@ -1,9 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, ImageBackground, SafeAreaView, Image, TouchableOpacity, TextInput } from 'react-native';
 import { FacebookIcon, InstagramIcon, YouTubeIcon, TikTokIcon, SeparatorIcon, ArrowIcon } from './icons/SocialIcons';
 import { LinkIcon } from './icons/LinkIcon';
+import { useModal } from './ModalContext';
 
 const HomeScreen: React.FC = () => {
+  const [videoUrl, setVideoUrl] = useState('');
+  const { showDownloadModal } = useModal();
+
+  const handleDownloadPress = () => {
+    // In a real app, you would validate the URL and fetch video info here
+    if (videoUrl.trim()) {
+      // Mock video info - in real app, this would come from API
+      // For demo purposes, we'll use a sample video title based on the URL
+      const urlParts = videoUrl.split('/');
+      const sampleTitle = urlParts[urlParts.length - 1] || 'Sample Video';
+      const thumbnail = 'https://via.placeholder.com/300x200/666666/FFFFFF?text=Video+Thumbnail';
+      showDownloadModal(videoUrl, thumbnail, sampleTitle);
+    } else {
+      // Show error or prompt to enter URL
+      alert('Please enter a video URL first');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <ImageBackground 
@@ -24,7 +43,11 @@ const HomeScreen: React.FC = () => {
                 style={styles.downloadImage}
                 resizeMode="contain"
               />
-              <TouchableOpacity style={styles.downloadButton} activeOpacity={0.8}>
+              <TouchableOpacity 
+                style={styles.downloadButton} 
+                activeOpacity={0.8}
+                onPress={handleDownloadPress}
+              >
                 <Text style={styles.downloadButtonText}>Download</Text>
               </TouchableOpacity>
               <Text style={styles.supportedPlatformsText}>Supported Platforms:</Text>
@@ -59,14 +82,16 @@ const HomeScreen: React.FC = () => {
                   style={styles.videoInput}
                   placeholder="Insert your video link here..."
                   placeholderTextColor="#666"
+                  value={videoUrl}
+                  onChangeText={setVideoUrl}
                 />
               </View>
             </View>
           </View>
         </SafeAreaView>
-      </ImageBackground>
-    </View>
-  );
+             </ImageBackground>
+     </View>
+   );
 };
 
 const styles = StyleSheet.create({

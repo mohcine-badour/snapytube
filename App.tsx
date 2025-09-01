@@ -4,9 +4,12 @@ import { StyleSheet, Text, View, ImageBackground, SafeAreaView, Image, Touchable
 import { useFonts } from 'expo-font';
 import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Header from './components/Header';
 import HomeScreen from './components/HomeScreen';
 import DrawerContent from './components/DrawerContent';
+import { ModalProvider, useModal } from './components/ModalContext';
+import DownloadModal from './components/DownloadModal';
 
 const Drawer = createDrawerNavigator();
 
@@ -17,6 +20,47 @@ function HomeScreenWrapper({ navigation }: { navigation: any }) {
       <Header navigation={navigation} />
       <HomeScreen />
     </View>
+  );
+}
+
+function AppContent() {
+  const { isDownloadModalVisible, videoUrl, videoThumbnail, videoTitle, hideDownloadModal } = useModal();
+
+  return (
+    <>
+      <NavigationContainer>
+        <Drawer.Navigator
+          drawerContent={(props) => <DrawerContent {...props} />}
+          screenOptions={{
+            headerShown: false,
+            drawerStyle: {
+              backgroundColor: '#1a1a1a',
+              width: 280,
+            },
+            drawerActiveTintColor: '#D23535',
+            drawerInactiveTintColor: '#fff',
+            drawerPosition: 'right',
+          }}
+        >
+          <Drawer.Screen 
+            name="Home" 
+            component={HomeScreenWrapper}
+            options={{
+              drawerLabel: 'Home',
+            }}
+          />
+        </Drawer.Navigator>
+      </NavigationContainer>
+      
+      {/* Download Modal - Rendered at root level */}
+      <DownloadModal
+        isVisible={isDownloadModalVisible}
+        onClose={hideDownloadModal}
+        videoUrl={videoUrl}
+        videoThumbnail={videoThumbnail}
+        videoTitle={videoTitle}
+      />
+    </>
   );
 }
 
@@ -33,29 +77,11 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Drawer.Navigator
-        drawerContent={(props) => <DrawerContent {...props} />}
-        screenOptions={{
-          headerShown: false,
-          drawerStyle: {
-            backgroundColor: '#1a1a1a',
-            width: 280,
-          },
-          drawerActiveTintColor: '#D23535',
-          drawerInactiveTintColor: '#fff',
-          drawerPosition: 'right',
-        }}
-      >
-        <Drawer.Screen 
-          name="Home" 
-          component={HomeScreenWrapper}
-          options={{
-            drawerLabel: 'Home',
-          }}
-        />
-      </Drawer.Navigator>
-    </NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ModalProvider>
+        <AppContent />
+      </ModalProvider>
+    </GestureHandlerRootView>
   );
 }
 
