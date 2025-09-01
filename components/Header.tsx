@@ -3,10 +3,14 @@ import { View, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { MenuIcon } from './icons/MenuIcon';
 
 interface HeaderProps {
-  onMenuPress?: () => void;
+  navigation: any;
 }
 
-const Header: React.FC<HeaderProps> = ({ onMenuPress }) => {
+const Header: React.FC<HeaderProps> = ({ navigation }) => {
+  const handleMenuPress = () => {
+    navigation.openDrawer();
+  };
+
   return (
     <View style={styles.header}>
       <View style={styles.logoContainer}>
@@ -19,7 +23,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuPress }) => {
       
       <TouchableOpacity 
         style={styles.menuButton} 
-        onPress={onMenuPress}
+        onPress={handleMenuPress}
         activeOpacity={0.7}
       >
         <MenuIcon width={24} height={18} color="#ffffff" style={{}} />
@@ -36,6 +40,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 15,
     paddingTop: 50, // Extra padding for status bar
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
   },
   logoContainer: {
     flex: 1,
