@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
 import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 
 interface DownloadModalProps {
@@ -29,6 +29,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
   const snapPoints = useMemo(() => ['25%', '75%'], []);
 
   const [selectedOption, setSelectedOption] = useState<string>('');
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // Mock download options - in real app, these would come from API
   const downloadOptions: DownloadOption[] = [
@@ -51,14 +52,20 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
     []
   );
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (selectedOption) {
-      // Handle download logic here
-      console.log('Downloading:', selectedOption);
-      // In a real app, you would start the download process here
-      // For now, we'll just show a success message
-      alert('Download started! This is a demo - in a real app, the download would begin now.');
-      onClose();
+      setIsDownloading(true);
+      
+      // Simulate download process
+      setTimeout(() => {
+        // Handle download logic here
+        console.log('Downloading:', selectedOption);
+        // In a real app, you would start the download process here
+        // For now, we'll just show a success message
+        alert('Download started! This is a demo - in a real app, the download would begin now.');
+        setIsDownloading(false);
+        onClose();
+      }, 2000); // 2 second delay to simulate download
     }
   };
 
@@ -156,14 +163,19 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
         <TouchableOpacity
           style={[
             styles.downloadButton,
-            !selectedOption && styles.downloadButtonDisabled
+            !selectedOption && styles.downloadButtonDisabled,
+            isDownloading && styles.downloadButtonLoading
           ]}
           onPress={handleDownload}
-          disabled={!selectedOption}
+          disabled={!selectedOption || isDownloading}
         >
-          <Text style={styles.downloadButtonText}>
-            {selectedOption ? 'Download Now' : 'Select Format'}
-          </Text>
+          {isDownloading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.downloadButtonText}>
+              {selectedOption ? 'Download Now' : 'Select Format'}
+            </Text>
+          )}
         </TouchableOpacity>
       </BottomSheetView>
     </BottomSheet>
@@ -316,6 +328,9 @@ const styles = StyleSheet.create({
   },
   downloadButtonDisabled: {
     backgroundColor: '#666',
+  },
+  downloadButtonLoading: {
+    backgroundColor: '#D23535',
   },
   downloadButtonText: {
     color: '#fff',

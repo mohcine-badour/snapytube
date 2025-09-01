@@ -1,22 +1,29 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, ImageBackground, SafeAreaView, Image, TouchableOpacity, TextInput } from 'react-native';
+import { StyleSheet, Text, View, ImageBackground, SafeAreaView, Image, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { FacebookIcon, InstagramIcon, YouTubeIcon, TikTokIcon, SeparatorIcon, ArrowIcon } from './icons/SocialIcons';
 import { LinkIcon } from './icons/LinkIcon';
 import { useModal } from './ModalContext';
 
 const HomeScreen: React.FC = () => {
   const [videoUrl, setVideoUrl] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { showDownloadModal, showWarningAlert } = useModal();
 
-  const handleDownloadPress = () => {
+  const handleDownloadPress = async () => {
     // In a real app, you would validate the URL and fetch video info here
     if (videoUrl.trim()) {
-      // Mock video info - in real app, this would come from API
-      // For demo purposes, we'll use a sample video title based on the URL
-      const urlParts = videoUrl.split('/');
-      const sampleTitle = urlParts[urlParts.length - 1] || 'Sample Video';
-      const thumbnail = 'https://via.placeholder.com/300x200/666666/FFFFFF?text=Video+Thumbnail';
-      showDownloadModal(videoUrl, thumbnail, sampleTitle);
+      setIsLoading(true);
+      
+      // Simulate API call delay
+      setTimeout(() => {
+        // Mock video info - in real app, this would come from API
+        // For demo purposes, we'll use a sample video title based on the URL
+        const urlParts = videoUrl.split('/');
+        const sampleTitle = urlParts[urlParts.length - 1] || 'Sample Video';
+        const thumbnail = 'https://via.placeholder.com/300x200/666666/FFFFFF?text=Video+Thumbnail';
+        showDownloadModal(videoUrl, thumbnail, sampleTitle);
+        setIsLoading(false);
+      }, 1500); // 1.5 second delay to simulate loading
     } else {
       // Show custom alert modal
       showWarningAlert(
@@ -47,11 +54,16 @@ const HomeScreen: React.FC = () => {
                 resizeMode="contain"
               />
               <TouchableOpacity 
-                style={styles.downloadButton} 
+                style={[styles.downloadButton, isLoading && styles.downloadButtonLoading]} 
                 activeOpacity={0.8}
                 onPress={handleDownloadPress}
+                disabled={isLoading}
               >
-                <Text style={styles.downloadButtonText}>Download</Text>
+                {isLoading ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={styles.downloadButtonText}>Download</Text>
+                )}
               </TouchableOpacity>
               <Text style={styles.supportedPlatformsText}>Supported Platforms:</Text>
               <View style={styles.socialIconsContainer}>
@@ -136,6 +148,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  downloadButtonLoading: {
+    backgroundColor: '#D23535', // A lighter color for loading state
   },
   downloadButtonText: {
     color: '#fff',
