@@ -4,28 +4,134 @@ import { FacebookIcon, InstagramIcon, YouTubeIcon, TikTokIcon, SeparatorIcon, Ar
 import { LinkIcon } from './icons/LinkIcon';
 import { useModal } from './ModalContext';
 
+interface VideoInfo {
+  title: string;
+  thumbnail: string;
+  formats: { id: string; type: 'video' | 'audio'; quality: string; size: string; format: string }[];
+  platform: 'youtube' | 'tiktok' | 'instagram' | 'facebook' | 'unknown';
+}
+
 const HomeScreen: React.FC = () => {
   const [videoUrl, setVideoUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { showDownloadModal, showWarningAlert } = useModal();
 
+  const detectPlatform = (url: string): 'youtube' | 'tiktok' | 'instagram' | 'facebook' | 'unknown' => {
+    const lowerUrl = url.toLowerCase();
+    if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be')) return 'youtube';
+    if (lowerUrl.includes('tiktok.com')) return 'tiktok';
+    if (lowerUrl.includes('instagram.com')) return 'instagram';
+    if (lowerUrl.includes('facebook.com') || lowerUrl.includes('fb.com')) return 'facebook';
+    return 'unknown';
+  };
+
+  const getPlatformIcon = (platform: string) => {
+    switch (platform) {
+      case 'youtube':
+        return 'https://www.youtube.com/favicon.ico';
+      case 'tiktok':
+        return 'https://www.tiktok.com/favicon.ico';
+      case 'instagram':
+        return 'https://www.instagram.com/favicon.ico';
+      case 'facebook':
+        return 'https://www.facebook.com/favicon.ico';
+      default:
+        return 'https://via.placeholder.com/80x60/666666/FFFFFF?text=Video';
+    }
+  };
+
+  const extractVideoInfo = async (url: string): Promise<VideoInfo> => {
+    const platform = detectPlatform(url);
+    
+    // In a real app, you would make an API call to get video metadata
+    // For now, we'll simulate this with realistic data based on the platform
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Generate realistic mock data based on platform
+    const mockFormats = [
+      { id: '1', type: 'video' as const, quality: '1080p', size: `${Math.floor(Math.random() * 50) + 20} MB`, format: 'MP4' },
+      { id: '2', type: 'video' as const, quality: '720p', size: `${Math.floor(Math.random() * 30) + 15} MB`, format: 'MP4' },
+      { id: '3', type: 'video' as const, quality: '480p', size: `${Math.floor(Math.random() * 20) + 10} MB`, format: 'MP4' },
+      { id: '4', type: 'audio' as const, quality: '320kbps', size: `${Math.floor(Math.random() * 10) + 5} MB`, format: 'MP3' },
+      { id: '5', type: 'audio' as const, quality: '192kbps', size: `${Math.floor(Math.random() * 8) + 3} MB`, format: 'MP3' },
+    ];
+
+    // Extract video ID from URL for more realistic thumbnail
+    let thumbnail = getPlatformIcon(platform);
+    let title = 'Video Title';
+    
+    try {
+      if (platform === 'youtube') {
+        const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)?.[1];
+        if (videoId) {
+          thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+          title = `YouTube Video - ${videoId}`;
+        } else {
+          // Fallback to default YouTube thumbnail
+          thumbnail = 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg';
+          title = 'YouTube Video';
+        }
+      } else if (platform === 'tiktok') {
+        const videoId = url.match(/video\/(\d+)/)?.[1] || url.match(/\/(\d+)/)?.[1];
+        if (videoId) {
+          title = `TikTok Video - ${videoId}`;
+        } else {
+          title = 'TikTok Video';
+        }
+      } else if (platform === 'instagram') {
+        const postId = url.match(/p\/([^\/]+)/)?.[1] || url.match(/reel\/([^\/]+)/)?.[1];
+        if (postId) {
+          title = `Instagram ${url.includes('/reel/') ? 'Reel' : 'Post'} - ${postId}`;
+        } else {
+          title = 'Instagram Post';
+        }
+      } else if (platform === 'facebook') {
+        const postId = url.match(/videos\/(\d+)/)?.[1] || url.match(/(\d+)/)?.[1];
+        if (postId) {
+          title = `Facebook Video - ${postId}`;
+        } else {
+          title = 'Facebook Video';
+        }
+      } else {
+        // For unknown platforms, try to extract some meaningful info
+        const urlParts = url.split('/');
+        const lastPart = urlParts[urlParts.length - 1];
+        if (lastPart && lastPart.length > 0) {
+          title = `Video - ${lastPart.substring(0, 20)}${lastPart.length > 20 ? '...' : ''}`;
+        }
+      }
+    } catch (error) {
+      console.warn('Error parsing video URL:', error);
+      // Keep default values if parsing fails
+    }
+
+    return {
+      title,
+      thumbnail,
+      formats: mockFormats,
+      platform
+    };
+  };
+
   const handleDownloadPress = async () => {
-    // In a real app, you would validate the URL and fetch video info here
     if (videoUrl.trim()) {
       setIsLoading(true);
       
-      // Simulate API call delay
-      setTimeout(() => {
-        // Mock video info - in real app, this would come from API
-        // For demo purposes, we'll use a sample video title based on the URL
-        const urlParts = videoUrl.split('/');
-        const sampleTitle = urlParts[urlParts.length - 1] || 'Sample Video';
-        const thumbnail = 'https://via.placeholder.com/300x200/666666/FFFFFF?text=Video+Thumbnail';
-        showDownloadModal(videoUrl, thumbnail, sampleTitle);
+      try {
+        const videoInfo = await extractVideoInfo(videoUrl);
+        showDownloadModal(videoUrl, videoInfo.thumbnail, videoInfo.title, videoInfo.formats, videoInfo.platform);
+      } catch (error) {
+        console.error('Error extracting video info:', error);
+        showWarningAlert(
+          'Error',
+          'Unable to extract video information. Please check the URL and try again.'
+        );
+      } finally {
         setIsLoading(false);
-      }, 1500); // 1.5 second delay to simulate loading
+      }
     } else {
-      // Show custom alert modal
       showWarningAlert(
         'URL Required',
         'Please enter a video URL in the input field above to continue with the download.'

@@ -32,9 +32,6 @@ function HomeScreenWrapper({ navigation }: { navigation: any }) {
 function AppContent() {
   const { 
     isDownloadModalVisible, 
-    videoUrl, 
-    videoThumbnail, 
-    videoTitle, 
     hideDownloadModal,
     isAlertModalVisible,
     alertModalData,
@@ -106,9 +103,6 @@ function AppContent() {
       <DownloadModal
         isVisible={isDownloadModalVisible}
         onClose={hideDownloadModal}
-        videoUrl={videoUrl}
-        videoThumbnail={videoThumbnail}
-        videoTitle={videoTitle}
       />
 
       {/* Alert Modal - Rendered at root level */}

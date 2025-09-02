@@ -1,13 +1,11 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
 import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import { useModal } from './ModalContext';
 
 interface DownloadModalProps {
   isVisible: boolean;
   onClose: () => void;
-  videoUrl?: string;
-  videoThumbnail?: string;
-  videoTitle?: string;
 }
 
 interface DownloadOption {
@@ -20,25 +18,24 @@ interface DownloadOption {
 
 const DownloadModal: React.FC<DownloadModalProps> = ({
   isVisible,
-  onClose,
-  videoUrl,
-  videoThumbnail,
-  videoTitle = 'Video Title'
+  onClose
 }) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ['25%', '75%'], []);
+  
+  const { 
+    videoUrl, 
+    videoThumbnail, 
+    videoTitle, 
+    videoFormats, 
+    videoPlatform 
+  } = useModal();
 
   const [selectedOption, setSelectedOption] = useState<string>('');
   const [isDownloading, setIsDownloading] = useState(false);
 
-  // Mock download options - in real app, these would come from API
-  const downloadOptions: DownloadOption[] = [
-    { id: '1', type: 'video', quality: '1080p', size: '45.2 MB', format: 'MP4' },
-    { id: '2', type: 'video', quality: '720p', size: '28.7 MB', format: 'MP4' },
-    { id: '3', type: 'video', quality: '480p', size: '18.3 MB', format: 'MP4' },
-    { id: '4', type: 'audio', quality: '320kbps', size: '8.5 MB', format: 'MP3' },
-    { id: '5', type: 'audio', quality: '192kbps', size: '5.2 MB', format: 'MP3' },
-  ];
+  // Use real video formats from context, fallback to empty array if none
+  const downloadOptions: DownloadOption[] = videoFormats.length > 0 ? videoFormats : [];
 
   const renderBackdrop = useCallback(
     (props: any) => (
@@ -79,6 +76,41 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
     return '#9E9E9E';
   };
 
+  const getPlatformIcon = (platform: string) => {
+    switch (platform) {
+      case 'youtube':
+        return 'https://www.youtube.com/favicon.ico';
+      case 'tiktok':
+        return 'https://www.tiktok.com/favicon.ico';
+      case 'instagram':
+        return 'https://www.instagram.com/favicon.ico';
+      case 'facebook':
+        return 'https://www.facebook.com/favicon.ico';
+      default:
+        return 'https://via.placeholder.com/80x60/666666/FFFFFF?text=Video';
+    }
+  };
+
+  const getPlatformName = (platform: string) => {
+    switch (platform) {
+      case 'youtube': return 'YouTube';
+      case 'tiktok': return 'TikTok';
+      case 'instagram': return 'Instagram';
+      case 'facebook': return 'Facebook';
+      default: return 'Video';
+    }
+  };
+
+  const getPlatformColor = (platform: string) => {
+    switch (platform) {
+      case 'youtube': return '#FF0000';
+      case 'tiktok': return '#000000';
+      case 'instagram': return '#E4405F';
+      case 'facebook': return '#1877F2';
+      default: return '#666666';
+    }
+  };
+
   React.useEffect(() => {
     if (isVisible) {
       bottomSheetRef.current?.expand();
@@ -109,18 +141,28 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
         {/* Video Info */}
         <View style={styles.videoInfoContainer}>
           {videoThumbnail ? (
-            <Image source={{ uri: videoThumbnail }} style={styles.thumbnail} />
+            <Image 
+              source={{ uri: videoThumbnail }} 
+              style={styles.thumbnail}
+              defaultSource={{ uri: getPlatformIcon(videoPlatform) }}
+            />
           ) : (
             <View style={styles.placeholderThumbnail}>
-              <Text style={styles.placeholderText}>🎥</Text>
+              <Image 
+                source={{ uri: getPlatformIcon(videoPlatform) }} 
+                style={styles.platformIcon}
+              />
             </View>
           )}
           <View style={styles.videoDetails}>
             <Text style={styles.videoTitle} numberOfLines={2}>
-              {videoTitle}
+              {videoTitle || 'Video Title'}
             </Text>
             <Text style={styles.videoUrl} numberOfLines={1}>
               {videoUrl || 'No URL provided'}
+            </Text>
+            <Text style={[styles.platformText, { color: getPlatformColor(videoPlatform) }]}>
+              {getPlatformName(videoPlatform)}
             </Text>
           </View>
         </View>
@@ -129,45 +171,52 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
         <View style={styles.optionsContainer}>
           <Text style={styles.optionsTitle}>Choose Download Format:</Text>
           
-          {downloadOptions.map((option) => (
-            <TouchableOpacity
-              key={option.id}
-              style={[
-                styles.optionItem,
-                selectedOption === option.id && styles.selectedOption
-              ]}
-              onPress={() => setSelectedOption(option.id)}
-            >
-              <View style={styles.optionLeft}>
-                <Text style={styles.optionIcon}>{getTypeIcon(option.type)}</Text>
-                <View style={styles.optionInfo}>
-                  <Text style={styles.optionType}>
-                    {option.type.charAt(0).toUpperCase() + option.type.slice(1)} - {option.quality}
-                  </Text>
-                  <Text style={styles.optionFormat}>{option.format}</Text>
+          {downloadOptions.length > 0 ? (
+            downloadOptions.map((option) => (
+              <TouchableOpacity
+                key={option.id}
+                style={[
+                  styles.optionItem,
+                  selectedOption === option.id && styles.selectedOption
+                ]}
+                onPress={() => setSelectedOption(option.id)}
+              >
+                <View style={styles.optionLeft}>
+                  <Text style={styles.optionIcon}>{getTypeIcon(option.type)}</Text>
+                  <View style={styles.optionInfo}>
+                    <Text style={styles.optionType}>
+                      {option.type.charAt(0).toUpperCase() + option.type.slice(1)} - {option.quality}
+                    </Text>
+                    <Text style={styles.optionFormat}>{option.format}</Text>
+                  </View>
                 </View>
-              </View>
-              <View style={styles.optionRight}>
-                <Text style={[styles.optionQuality, { color: getQualityColor(option.quality) }]}>
-                  {option.quality}
-                </Text>
-                {option.size && (
-                  <Text style={styles.optionSize}>{option.size}</Text>
-                )}
-              </View>
-            </TouchableOpacity>
-          ))}
+                <View style={styles.optionRight}>
+                  <Text style={[styles.optionQuality, { color: getQualityColor(option.quality) }]}>
+                    {option.quality}
+                  </Text>
+                  {option.size && (
+                    <Text style={styles.optionSize}>{option.size}</Text>
+                  )}
+                </View>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <View style={styles.noOptionsContainer}>
+              <Text style={styles.noOptionsText}>No download formats available</Text>
+              <Text style={styles.noOptionsSubtext}>Please check the video URL and try again</Text>
+            </View>
+          )}
         </View>
 
         {/* Download Button */}
         <TouchableOpacity
           style={[
             styles.downloadButton,
-            !selectedOption && styles.downloadButtonDisabled,
+            (!selectedOption || downloadOptions.length === 0) && styles.downloadButtonDisabled,
             isDownloading && styles.downloadButtonLoading
           ]}
           onPress={handleDownload}
-          disabled={!selectedOption || isDownloading}
+          disabled={!selectedOption || downloadOptions.length === 0 || isDownloading}
         >
           {isDownloading ? (
             <ActivityIndicator size="small" color="#fff" />
@@ -240,8 +289,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 15,
   },
+  platformIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+  },
   placeholderText: {
     fontSize: 24,
+  },
+  platformText: {
+    fontSize: 12,
+    fontFamily: 'Montserrat',
+    marginTop: 5,
   },
   videoDetails: {
     flex: 1,
@@ -317,6 +376,22 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'Montserrat',
     color: '#999',
+  },
+  noOptionsContainer: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  noOptionsText: {
+    fontSize: 16,
+    fontFamily: 'Montserrat-Bold',
+    color: '#fff',
+    marginBottom: 5,
+  },
+  noOptionsSubtext: {
+    fontSize: 12,
+    fontFamily: 'Montserrat',
+    color: '#999',
+    textAlign: 'center',
   },
   downloadButton: {
     backgroundColor: '#D23535',

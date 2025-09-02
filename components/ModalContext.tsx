@@ -1,5 +1,13 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
+interface DownloadFormat {
+  id: string;
+  type: 'video' | 'audio';
+  quality: string;
+  size: string;
+  format: string;
+}
+
 interface AlertModalData {
   title: string;
   message: string;
@@ -14,7 +22,9 @@ interface ModalContextType {
   videoUrl: string;
   videoThumbnail: string;
   videoTitle: string;
-  showDownloadModal: (url: string, thumbnail?: string, title?: string) => void;
+  videoFormats: DownloadFormat[];
+  videoPlatform: 'youtube' | 'tiktok' | 'instagram' | 'facebook' | 'unknown';
+  showDownloadModal: (url: string, thumbnail?: string, title?: string, formats?: DownloadFormat[], platform?: 'youtube' | 'tiktok' | 'instagram' | 'facebook' | 'unknown') => void;
   hideDownloadModal: () => void;
   // Alert modal
   isAlertModalVisible: boolean;
@@ -47,6 +57,8 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
   const [videoUrl, setVideoUrl] = useState('');
   const [videoThumbnail, setVideoThumbnail] = useState('');
   const [videoTitle, setVideoTitle] = useState('');
+  const [videoFormats, setVideoFormats] = useState<DownloadFormat[]>([]);
+  const [videoPlatform, setVideoPlatform] = useState<'youtube' | 'tiktok' | 'instagram' | 'facebook' | 'unknown'>('unknown');
 
   // Alert modal state
   const [isAlertModalVisible, setIsAlertModalVisible] = useState(false);
@@ -57,10 +69,18 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
     type: 'info'
   });
 
-  const showDownloadModal = (url: string, thumbnail: string = '', title: string = '') => {
+  const showDownloadModal = (
+    url: string, 
+    thumbnail: string = '', 
+    title: string = '', 
+    formats: DownloadFormat[] = [],
+    platform: 'youtube' | 'tiktok' | 'instagram' | 'facebook' | 'unknown' = 'unknown'
+  ) => {
     setVideoUrl(url);
     setVideoThumbnail(thumbnail);
     setVideoTitle(title);
+    setVideoFormats(formats);
+    setVideoPlatform(platform);
     setIsDownloadModalVisible(true);
   };
 
@@ -119,6 +139,8 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
     videoUrl,
     videoThumbnail,
     videoTitle,
+    videoFormats,
+    videoPlatform,
     showDownloadModal,
     hideDownloadModal,
     isAlertModalVisible,
