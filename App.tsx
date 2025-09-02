@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Header from './components/Header';
 import HomeScreen from './components/HomeScreen';
 import DownloadHistoryScreen from './components/DownloadHistoryScreen';
+import SettingsScreen from './components/SettingsScreen';
 import DrawerContent from './components/DrawerContent';
 import { ModalProvider, useModal } from './components/ModalContext';
 import DownloadModal from './components/DownloadModal';
@@ -65,6 +66,13 @@ function AppContent() {
             component={DownloadHistoryScreen}
             options={{
               drawerLabel: 'Download History',
+            }}
+          />
+          <Drawer.Screen 
+            name="Settings" 
+            component={SettingsScreen}
+            options={{
+              drawerLabel: 'Settings',
             }}
           />
         </Drawer.Navigator>

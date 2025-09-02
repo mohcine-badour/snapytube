@@ -27,8 +27,7 @@ const DrawerContent: React.FC<DrawerContentProps> = ({ navigation }) => {
     if (itemName === 'Download History') {
       navigation.navigate('DownloadHistory');
     } else if (itemName === 'Settings') {
-      // Navigate to Settings screen when implemented
-      console.log('Settings navigation not implemented yet');
+      navigation.navigate('Settings');
     } else if (itemName === 'Terms') {
       // Navigate to Terms screen when implemented
       console.log('Terms navigation not implemented yet');
