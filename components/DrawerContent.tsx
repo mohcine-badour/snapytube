@@ -23,6 +23,23 @@ const DrawerContent: React.FC<DrawerContentProps> = ({ navigation }) => {
   const handleMenuItemPress = (itemName: string) => {
     // Handle menu item press
     console.log(`${itemName} pressed`);
+    
+    if (itemName === 'Download History') {
+      navigation.navigate('DownloadHistory');
+    } else if (itemName === 'Settings') {
+      // Navigate to Settings screen when implemented
+      console.log('Settings navigation not implemented yet');
+    } else if (itemName === 'Terms') {
+      // Navigate to Terms screen when implemented
+      console.log('Terms navigation not implemented yet');
+    } else if (itemName === 'Privacy') {
+      // Navigate to Privacy screen when implemented
+      console.log('Privacy navigation not implemented yet');
+    } else if (itemName === 'About') {
+      // Navigate to About screen when implemented
+      console.log('About navigation not implemented yet');
+    }
+    
     navigation.closeDrawer();
   };
 
