@@ -9,6 +9,9 @@ import Header from './components/Header';
 import HomeScreen from './components/HomeScreen';
 import DownloadHistoryScreen from './components/DownloadHistoryScreen';
 import SettingsScreen from './components/SettingsScreen';
+import TermsScreen from './components/TermsScreen';
+import PrivacyScreen from './components/PrivacyScreen';
+import AboutScreen from './components/AboutScreen';
 import DrawerContent from './components/DrawerContent';
 import { ModalProvider, useModal } from './components/ModalContext';
 import DownloadModal from './components/DownloadModal';
@@ -73,6 +76,27 @@ function AppContent() {
             component={SettingsScreen}
             options={{
               drawerLabel: 'Settings',
+            }}
+          />
+          <Drawer.Screen 
+            name="Terms" 
+            component={TermsScreen}
+            options={{
+              drawerLabel: 'Terms',
+            }}
+          />
+          <Drawer.Screen 
+            name="Privacy" 
+            component={PrivacyScreen}
+            options={{
+              drawerLabel: 'Privacy',
+            }}
+          />
+          <Drawer.Screen 
+            name="About" 
+            component={AboutScreen}
+            options={{
+              drawerLabel: 'About',
             }}
           />
         </Drawer.Navigator>

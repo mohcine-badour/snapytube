@@ -29,14 +29,11 @@ const DrawerContent: React.FC<DrawerContentProps> = ({ navigation }) => {
     } else if (itemName === 'Settings') {
       navigation.navigate('Settings');
     } else if (itemName === 'Terms') {
-      // Navigate to Terms screen when implemented
-      console.log('Terms navigation not implemented yet');
+      navigation.navigate('Terms');
     } else if (itemName === 'Privacy') {
-      // Navigate to Privacy screen when implemented
-      console.log('Privacy navigation not implemented yet');
+      navigation.navigate('Privacy');
     } else if (itemName === 'About') {
-      // Navigate to About screen when implemented
-      console.log('About navigation not implemented yet');
+      navigation.navigate('About');
     }
     
     navigation.closeDrawer();
